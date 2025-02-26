@@ -113,9 +113,10 @@ const CustomSpan = ({
                   ? "bg-[#598CFF]"
                   : "bg-[#F45050]"
               }`}
-            style={{
-              height: isAnimated ? `${value}%` : "0%",
-            }}
+              style={{
+                height: isAnimated ? `${value}%` : "0%",
+                // boxShadow: "0px -0.73px 2.9px 0px #00000040" // Added the requested box-shadow
+              }}
           />
         ))}
       </div>
