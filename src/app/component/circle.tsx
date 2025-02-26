@@ -162,8 +162,8 @@ const data: GraphData[] = [
         },
         milestones: {
             loanComplete: 1,
-            propertySold: 0,
-            propertyAdded: 0,
+            propertySold: 1,
+            propertyAdded: 1,
             investmentOpportunity: 0,
         },
     },

@@ -26,7 +26,6 @@ const CustomSpan = ({
   };
 }) => {
   const [hovered, setHovered] = useState(false);
-  const [year, setyear] = useState(true);
   const [tooltipPos, setTooltipPos] = useState({ top: 0, left: 0 });
   const [isAnimated, setIsAnimated] = useState(false);
   const spanRef = useRef<HTMLDivElement>(null);
@@ -82,42 +81,59 @@ const CustomSpan = ({
     equity: "bg-[#598CFF]", // Blue for Equity
     investmentOpportunity: "bg-[#FFFF00]", // Yellow for Investment Opportunity
   };
+
+  const Portal = ({ children }: { children: React.ReactNode }) => {
+    if (typeof window === "undefined") return null;
+    return createPortal(children, document.body);
+  };
+
   return (
     <>
-      <div
-        ref={spanRef}
-        className="relative w-[20px] h-[100px] bg-[#ECECF0] rounded-t-sm rounded-b-lg shadow-2xl flex flex-col justify-end items-start "
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-      >
-        <div className="w-full bg-[#ECECF0] rounded-2xl h-[100px] relative">
-          {activeOptions.length > 0 && (
-            <div className="absolute left-1/2 -translate-x-1/2 top-[5px] z-20 flex flex-col gap-1">
-              {activeOptions.map((option, index) => (
-                <div
-                  key={option}
-                  ref={index === 0 ? dotRef : null}
-                  className={`w-4 h-4 ${optionColors[option]} border-[3px] border-white rounded-full shadow-lg`}
-                ></div>
-              ))}
+      <div className="overflow-visible" >
+        <div
+          ref={spanRef}
+          className="relative w-[20px] h-[100px] bg-[#ECECF0] rounded-t-sm rounded-b-lg shadow-2xl flex flex-col justify-end items-start overflow-visible"
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
+          <div className="w-full bg-[#ECECF0] rounded-2xl h-[100px] relative">
+            {activeOptions.length > 0 && (
+              <div className="absolute left-1/2 -translate-x-1/2 top-[5px] z-20 flex flex-col gap-1">
+                {activeOptions.map((option, index) => (
+                  <div
+                    key={option}
+                    ref={index === 0 ? dotRef : null}
+                    className={`w-4 h-4 ${optionColors[option]} border-[3px] border-white rounded-full shadow-lg`}
+                  ></div>
+                ))}
+              </div>
+            )}
+          </div>
+          <Portal>
+            <div className="relative">
+              <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50">
+                <h1 className="text-black font-bold text-sm bg-white px-2 py-1 rounded-full shadow">
+                  2035
+                </h1>
+              </div>
             </div>
-          )}
-        </div>
-        {sortedColors.map(([color, value]) => (
-          <div
-            key={color}
-            className={`w-full rounded-t-[3px] shadow-lg transition-all duration-200 ease-out
+          </Portal>
+          {sortedColors.map(([color, value]) => (
+            <div
+              key={color}
+              className={`w-full rounded-t-[3px] shadow-lg transition-all duration-200 ease-out
                 ${color === "green"
-                ? "bg-[#00E5AD]"
-                : color === "blue"
-                  ? "bg-[#598CFF]"
-                  : "bg-[#F45050]"
-              }`}
-            style={{
-              height: isAnimated ? `${value}%` : "0%",
-            }}
-          />
-        ))}
+                  ? "bg-[#00E5AD]"
+                  : color === "blue"
+                    ? "bg-[#598CFF]"
+                    : "bg-[#F45050]"
+                }`}
+              style={{
+                height: isAnimated ? `${value}%` : "0%",
+              }}
+            />
+          ))}
+        </div>
       </div>
 
       {(hovered && values.details) && (values.propertyAdded || values.loanComplete || values.propertySold || values.investmentOpportunity) &&
