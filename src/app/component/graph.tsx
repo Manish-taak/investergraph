@@ -82,17 +82,12 @@ const CustomSpan = ({
     investmentOpportunity: "bg-[#FFFF00]", // Yellow for Investment Opportunity
   };
 
-  const Portal = ({ children }: { children: React.ReactNode }) => {
-    if (typeof window === "undefined") return null;
-    return createPortal(children, document.body);
-  };
-
   return (
     <>
       <div className="overflow-visible" >
         <div
           ref={spanRef}
-          className="relative w-[20px] h-[100px] bg-[#ECECF0] rounded-t-sm rounded-b-lg shadow-2xl flex flex-col justify-end items-start overflow-visible"
+          className="relative w-[20px] h-[100px] bg-[#ECECF0] rounded-t-sm rounded-b-lg drop-shadow-lg shadow-ld flex flex-col justify-end items-start overflow-visible"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
@@ -103,21 +98,12 @@ const CustomSpan = ({
                   <div
                     key={option}
                     ref={index === 0 ? dotRef : null}
-                    className={`w-4 h-4 ${optionColors[option]} border-[3px] border-white rounded-full shadow-lg`}
+                    className={`w-4 h-4 ${optionColors[option]} border-[#FFFFFF] border-[3px] border-dashed rounded-full drop-shadow-lg`}
                   ></div>
                 ))}
               </div>
             )}
           </div>
-          <Portal>
-            <div className="relative">
-              <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50">
-                <h1 className="text-black font-bold text-sm bg-white px-2 py-1 rounded-full shadow">
-                  2035
-                </h1>
-              </div>
-            </div>
-          </Portal>
           {sortedColors.map(([color, value]) => (
             <div
               key={color}
@@ -140,7 +126,7 @@ const CustomSpan = ({
         createPortal(
           <div
             ref={tooltipRef}
-            className="fixed bg-white shadow-xl p-3 text-xs rounded-md border border-gray-300 w-52 z-[9999]"
+            className="fixed bg-white shadow-xl p-[6px] text-xs rounded-md border border-gray-300 w-[204px] z-[9999]"
             style={{
               top: tooltipPos.top,
               left: tooltipPos.left,
@@ -156,26 +142,26 @@ const CustomSpan = ({
                 borderRadius: "4px",
               }}
             ></div>
-
-            <strong className="block text-sm text-black mb-1">
-              {values.details.title}
-            </strong>
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-              <p className="text-gray-700">
-                Value: <span className="font-bold">${values.details.value}</span>
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
-              <p className="text-gray-700">
-                Loan: <span className="font-bold">${values.details.loan}</span>
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
+            <div className="flex p-[6px] items-center gap-2">
               <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-              <p className="text-gray-700">
-                Equity: <span className="font-bold">${values.details.equity}</span>
+              <h2 className="text-[#121212] text-[12px] font-medium" >4B jarrah Drive Street Sold</h2>
+            </div>
+            <div className="flex p-[6px] items-center gap-2">
+              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+              <p className="text-[#6D6D6D] items-center flex justify-between w-full">
+                Value: <span className="font-medium text-[12px] text-[#121212]">${values.details.value}</span>
+              </p>
+            </div>
+            <div className="flex p-[6px] items-center gap-2">
+              <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
+              <p className="text-[#6D6D6D] items-center flex justify-between w-full">
+                Loan: <span className="font-medium text-[12px] text-[#121212]">${values.details.loan}</span>
+              </p>
+            </div>
+            <div className="flex p-[6px] items-center gap-2">
+              <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+              <p className="text-[#6D6D6D] items-center flex justify-between w-full">
+                Equity: <span className="font-medium text-[12px] text-[#121212]">${values.details.equity}</span>
               </p>
             </div>
           </div>,
