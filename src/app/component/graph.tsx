@@ -10,21 +10,25 @@ const CustomSpan = ({
     projected: number;
     Equity: number;
     outstanding: number;
-    details?: {
+    details: Array<{
       title: string;
       value: string;
       loan: string;
       equity: string;
-    };
-    projectedValue?: boolean;
-    loanComplete?: boolean;
-    outstandingLoan?: boolean;
-    propertySold?: boolean;
+      milestones?: {
+        propertySold?: boolean;
+        loanComplete?: boolean;
+        propertyAdded?: boolean;
+        investmentOpportunity?: boolean;
+      };
+    }>;
     propertyAdded?: boolean;
-    equity?: boolean;
+    loanComplete?: boolean;
+    propertySold?: boolean;
     investmentOpportunity?: boolean;
   };
 }) => {
+
   const [hovered, setHovered] = useState(false);
   const [tooltipPos, setTooltipPos] = useState({ top: 0, left: 0 });
   const [isAnimated, setIsAnimated] = useState(false);
@@ -51,14 +55,19 @@ const CustomSpan = ({
   };
 
   useEffect(() => {
-    updateTooltipPosition(); // Update position on hover
+    const handleScroll = () => {
+      requestAnimationFrame(updateTooltipPosition);
+    };
 
     if (hovered) {
-      window.addEventListener("scroll", updateTooltipPosition);
+      updateTooltipPosition(); // Ensure tooltip updates on hover
+      window.addEventListener("scroll", handleScroll, { passive: true });
+      window.addEventListener("resize", handleScroll, { passive: true });
     }
 
     return () => {
-      window.removeEventListener("scroll", updateTooltipPosition);
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
     };
   }, [hovered]);
 
@@ -87,24 +96,40 @@ const CustomSpan = ({
   // Define color mapping for each option
   const optionColors: Record<string, string> = {
     projectedValue: "bg-[#00E5AD]",
-    loanComplete: "bg-[#9966FF]",
+    loanComplete: "bg-[#9747FF]",
     outstandingLoan: "bg-[#F45050]",
-    propertySold: "bg-[#FF9F40]",
-    propertyAdded: "bg-[#00FF00]",
+    propertySold: "bg-[#FF3ADB]",
+    propertyAdded: "bg-[#25DC00]",
     equity: "bg-[#598CFF]",
-    investmentOpportunity: "bg-[#FFFF00]",
+    investmentOpportunity: "bg-[#E5D200]",
+  };
+
+  const getMilestoneColor = (milestones: any) => {
+    const milestoneColors = {
+      propertySold: "#FF3ADB",
+      loanComplete: "#9747FF",
+      propertyAdded: "#25DC00",
+      investmentOpportunity: "#E5D200",
+    };
+
+    for (const key in milestoneColors) {
+      if (milestones[key as keyof typeof milestoneColors]) return milestoneColors[key as keyof typeof milestoneColors];
+    }
+    return "gray"; // Default color
   };
 
   return (
     <>
+
       <div className="overflow-visible">
         <div
           ref={spanRef}
-          className="relative w-[20px] h-[95px] bg-[#ECECF0] rounded-t-sm rounded-b-lg drop-shadow-lg shadow-lg flex flex-col justify-end items-start overflow-visible"
+          className="relative w-[21px] h-[95px]  bg-[#ECECF0] rounded-t-sm rounded-b-lg drop-shadow-[50px_50px_51px_50px_rgba(0,_0,_0,_0.1)]  flex flex-col justify-end items-start overflow-visible"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
-          <div className="w-full bg-[#ECECF0] rounded-2xl h-[100px] relative">
+
+          <div className="w-full bg-[#ECECF0] rounded-xl h-[100px] relative">
             {activeOptions.length > 0 && (
               <div className="absolute left-1/2 -translate-x-1/2 top-[5px] z-20 flex flex-col gap-1">
                 {activeOptions.map((option, index) => (
@@ -117,10 +142,11 @@ const CustomSpan = ({
               </div>
             )}
           </div>
+
           {sortedColors.map(([color, value]) => (
             <div
               key={color}
-              className={`w-full rounded-t-[3px] shadow-lg transition-all duration-200 ease-out
+              className={`w-full rounded-t-[7px] mb-[-1px] shadow-lg transition-all duration-200 ease-out
                 ${color === "projected"
                   ? "bg-[#00E5AD]"
                   : color === "Equity"
@@ -129,14 +155,17 @@ const CustomSpan = ({
                 }`}
               style={{
                 height: isAnimated ? `${value}%` : "0%",
+                WebkitMaskImage: `linear-gradient(to top, rgba(0,0,0,1), rgba(0,0,0,1))`
               }}
             />
           ))}
+
         </div>
       </div>
 
       {hovered &&
         values.details &&
+        Array.isArray(values.details) &&
         (values.propertyAdded ||
           values.loanComplete ||
           values.propertySold ||
@@ -144,58 +173,85 @@ const CustomSpan = ({
         createPortal(
           <div
             ref={tooltipRef}
-            className="fixed bg-white shadow-xl p-[6px] text-xs rounded-md border border-gray-300 w-[204px] z-[9999]"
+            className="fixed bg-white shadow-2xl p-1 text-xs rounded-md border border-gray-300 w-[204px] z-[9999]"
+
             style={{
               top: tooltipPos.top,
               left: tooltipPos.left,
               transform: "translateX(-50%)",
+              // maxHeight: "275px", 
+              // overflow: "auto",  
             }}
+
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
           >
+            {/* Tooltip Arrow */}
             <div
-              className="absolute left-1/2 bottom-[-10px] w-5 h-5 bg-white rotate-45"
+              className="absolute left-1/2 bottom-[-6px] w-4 h-4 bg-white rotate-45"
               style={{
                 transform: "translateX(-50%) rotate(45deg)",
-                borderRadius: "4px",
+                borderRadius: "1px",
               }}
             ></div>
-            <div className="flex p-[6px] items-center gap-2">
-              <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-              <h2 className="text-[#121212] text-[12px] font-medium">
-                {values.details.title}
-              </h2>
-            </div>
-            <div className="flex p-[6px] items-center gap-2">
-              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-              <p className="text-[#6D6D6D] items-center flex justify-between w-full">
-                Value:{" "}
-                <span className="font-medium text-[12px] text-[#121212]">
-                  ${values.details.value}
-                </span>
-              </p>
-            </div>
-            <div className="flex p-[6px] items-center gap-2">
-              <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
-              <p className="text-[#6D6D6D] items-center flex justify-between w-full">
-                Loan:{" "}
-                <span className="font-medium text-[12px] text-[#121212]">
-                  ${values.details.loan}
-                </span>
-              </p>
-            </div>
-            <div className="flex p-[6px] items-center gap-2">
-              <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-              <p className="text-[#6D6D6D] items-center flex justify-between w-full">
-                Equity:{" "}
-                <span className="font-medium text-[12px] text-[#121212]">
-                  ${values.details.equity}
-                </span>
-              </p>
-            </div>
+
+            {values.details.map((detail, index) => {
+              return (
+                <div
+                  key={index}
+                  className={`p-1 ${index !== values.details!.length - 1 ? "border-b border-gray-300 pb-2 mb-2" : ""}`}
+                >
+
+                  <div className="flex p-1 items-center gap-2 ">
+                    <span
+                      className="w-3 h-3 border-[#FFFFFF] border-[1px] box-shadow: -20px 1px 100px 50px rgba(0, 0, 0, 0.1) border-dashed rounded-full "
+                      style={{ backgroundColor: getMilestoneColor(detail.milestones) }}
+                    ></span>
+                    <h2 className="text-[12px] font-medium">
+                      {detail.title}
+                    </h2>
+                  </div>
+
+                  <div className="flex flex-wrap" >
+                    {/* Value */}
+                    <div className="flex p-1 items-center gap-2 w-fit">
+                      <span className="min-w-[12px] h-3 bg-green-500 rounded-full"></span>
+                      <p className="text-[#6D6D6D] flex items-center justify-between w-full">
+                        Value:{" "}
+                        <span className="font-medium text-[12px] text-[#121212]">
+                          ${detail.value}
+                        </span>
+                      </p>
+                    </div>
+                    {/* Loan */}
+                    <div className="flex p-1 items-center gap-2 w-fit">
+                      <div className="min-w-[12px] bg-[#9747FF] h-3 border-[#FFFFFF] border-[1px] border-dashed rounded-full shadow-lg drop-shadow-lg"></div>
+                      <p className="text-[#6D6D6D] flex items-center justify-between w-full">
+                        Loan:{" "}
+                        <span className="font-medium text-[12px] text-[#121212]">
+                          ${detail.loan}
+                        </span>
+                      </p>
+                    </div>
+                    {/* Equity */}
+                    <div className="flex p-1 items-center gap-2 w-fit">
+                      <div className="min-w-[12px] h-3 bg-blue-500 rounded-full"></div>
+                      <p className="text-[#6D6D6D] flex items-center justify-between w-full">
+                        Equity:{" "}
+                        <span className="font-medium text-[12px] text-[#121212]">
+                          ${detail.equity}
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+
+                </div>
+              );
+            })}
           </div>,
           document.body
-        )}
+        )
+      }
     </>
   );
 };

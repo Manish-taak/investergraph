@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React from "react";
 import CustomSpan from "./graph";
@@ -20,17 +20,7 @@ export interface PropertyData {
 
 export interface GraphData {
     year: string;
-    amounts: {
-        projectedValue: number;
-        outstandingLoan: number;
-        equity: number;
-    };
-    milestones: {
-        loanComplete: 0 | 1;
-        propertySold: 0 | 1;
-        propertyAdded: 0 | 1;
-        investmentOpportunity: 0 | 1;
-    };
+    properties: PropertyData[];
 }
 
 const leftLabels = [
@@ -48,21 +38,25 @@ const rightLabels = [
 
 const displayYears = ["2035", "2040", "2045", "2050", "2055", "2060", "2025", "2030"];
 
-interface circle {
+interface CircleProps {
     width: number;
     data: GraphData[];
 }
 
-const Circle: React.FC<circle> = ({ width, data }) => {
+const Circle: React.FC<CircleProps> = ({ width, data }) => {
+
     const totalSpans = data.length;
     const angleStep = 360 / totalSpans;
 
     return (
         <>
-            <div style={{ width: `${width}px`}} className="pt-10" >
-                <h1 className="text-[20px] font-semibold text-[#121212] text-center pt-[14px]">Overall Portfolio</h1>
-                <div className="w-[517] h-[500px] flex justify-center items-center ">
-                    <div className="relative flex justify-center items-center ">
+            <div style={{ width: `${width}px` }} className="mt-20 ml-20">
+                <h1 className="text-[20px] font-semibold text-[#121212] text-center pt-[14px]">
+                    Overall Portfolio
+                </h1>
+                <div className="w-[517px] h-[500px] flex justify-center items-center">
+                    <div className="relative flex justify-center items-center">
+                        {/* Display years around the circle */}
                         {displayYears.map((year, index) => {
                             const angle = (index * 45 * Math.PI) / 180;
                             const distance = 225;
@@ -81,37 +75,58 @@ const Circle: React.FC<circle> = ({ width, data }) => {
                                 </div>
                             );
                         })}
-                        <div className="w-[360px] h-[360px] flex justify-center items-center rotate-[-90deg] " >
+
+                        {/* Main Circular Graph */}
+                        <div className="w-[360px] h-[360px] flex justify-center items-center rotate-[-90deg]">
                             {data.map((item, index) => {
+                                const activeProperties = item.properties.filter(
+                                    (property) =>
+                                        property.milestones.propertyAdded ||
+                                        property.milestones.loanComplete ||
+                                        property.milestones.propertySold ||
+                                        property.milestones.investmentOpportunity
+                                );
+
+                                const validProperties = activeProperties.length > 0 ? activeProperties : item.properties;
+
                                 return (
                                     <div
                                         key={item.year}
                                         className="absolute bg-[#ECECF0] shadow-2xl rounded-lg"
                                         style={{
-                                            transform: `rotate(${index * angleStep}deg) translate(145px) rotate(90deg)`,
-                                            clipPath: `polygon(${[
-                                                "0% 0%",
-                                                "100% 0%",
-                                                "80% 100%",
-                                                "20% 100%"
-                                            ].join(", ")})`
-                                        }}>
-
+                                            transform: `rotate(${index * angleStep}deg) translate(150px) rotate(90deg)`,
+                                            clipPath: `polygon(0% 0%, 100% 0%, 80% 100%, 20% 100%)`,
+                                            boxShadow: "5px 5px 10px rgba(0, 0, 0, 0.3)",
+                                            WebkitMaskImage: `linear-gradient(to top, rgba(0,0,0,1), rgba(0,0,0,1))`
+                                        }}
+                                    >
                                         <CustomSpan
                                             values={{
-                                                projected: item.amounts.projectedValue,
-                                                Equity: item.amounts.equity,
-                                                outstanding: item.amounts.outstandingLoan,
-                                                details: {
-                                                    title: `Year ${item.year}`,
-                                                    value: item.amounts.projectedValue.toString(),
-                                                    loan: item.amounts.outstandingLoan.toString(),
-                                                    equity: item.amounts.equity.toString(),
-                                                },
-                                                propertyAdded: !!item.milestones.propertyAdded,
-                                                loanComplete: !!item.milestones.loanComplete,
-                                                propertySold: !!item.milestones.propertySold,
-                                                investmentOpportunity: !!item.milestones.investmentOpportunity,
+                                                projected: validProperties.reduce(
+                                                    (sum, property) => sum + property.amounts.projectedValue, 0
+                                                ),
+                                                Equity: validProperties.reduce(
+                                                    (sum, property) => sum + property.amounts.equity, 0
+                                                ),
+                                                outstanding: validProperties.reduce(
+                                                    (sum, property) => sum + property.amounts.outstandingLoan, 0
+                                                ),
+                                                details: activeProperties.map((property) => ({
+                                                    title: `${property.propertyName} (${item.year})`,
+                                                    value: property.amounts.projectedValue.toString(),
+                                                    loan: property.amounts.outstandingLoan.toString(),
+                                                    equity: property.amounts.equity.toString(),
+                                                    milestones: {
+                                                        loanComplete: !!property.milestones.loanComplete,
+                                                        propertySold: !!property.milestones.propertySold,
+                                                        propertyAdded: !!property.milestones.propertyAdded,
+                                                        investmentOpportunity: !!property.milestones.investmentOpportunity,
+                                                    },
+                                                })),
+                                                propertyAdded: activeProperties.some((property) => property.milestones.propertyAdded) || false,
+                                                loanComplete: activeProperties.some((property) => property.milestones.loanComplete) || false,
+                                                propertySold: activeProperties.some((property) => property.milestones.propertySold) || false,
+                                                investmentOpportunity: activeProperties.some((property) => property.milestones.investmentOpportunity) || false,
                                             }}
                                         />
                                     </div>
@@ -120,33 +135,30 @@ const Circle: React.FC<circle> = ({ width, data }) => {
                         </div>
                     </div>
                 </div>
-                <div>
-                    <div className="flex gap-8 p-4 mt-8 items-center justify-between">
-                        {/* Left Labels */}
+
+                <div className="flex gap-8 p-4 items-center justify-center">
+                    <div className="flex flex-col gap-2">
+                        {leftLabels.map((item, index) => (
+                            <div key={index} className="flex bg-[#FAFAFA] px-3 py-1 rounded-full items-center gap-2">
+                                <span style={{ backgroundColor: `${item.color}` }} className={`w-3 h-3 rounded-full`} />
+                                <span className=" text-[#121212] font-normal text-[12px] rounded-lg">
+                                    {item.text}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                    <div className=" rounded-lg  bg-white">
                         <div className="flex flex-col gap-2">
-                            {leftLabels.map((item, index) => (
-                                <div key={index} className="flex bg-[#FAFAFA] px-[14px] py-[8px] rounded-full items-center gap-2">
-                                    <span style={{ backgroundColor: `${item.color}` }} className={`w-3 h-3 rounded-full`} />
-                                    <span className="text-[#121212] font-normal text-[12px] rounded-lg">
+                            {rightLabels.map((item, index) => (
+                                <div key={index} className="flex bg-[#FAFAFA] items-center gap-[2px]">
+                                    <div className="w-7 h-7 flex justify-center items-center border border-1 border-[#EEEEEE]  rounded-l-[5px] "  >
+                                        <div style={{ backgroundColor: `${item.color}` }} className="w-3 h-3  border-[#FFFFFF] border-[1px] border-dashed rounded-full drop-shadow-lg"></div>
+                                    </div>
+                                    <span className="text-[#121212] text-[12px] p-1 border border-[#EEEEEE] w-full">
                                         {item.text}
                                     </span>
                                 </div>
                             ))}
-                        </div>
-                        {/* Right Labels */}
-                        <div className="rounded-lg bg-white">
-                            <div className="flex flex-col gap-2">
-                                {rightLabels.map((item, index) => (
-                                    <div key={index} className="flex  items-center bg-[#FAFAFA] gap-[2px]">
-                                        <div className="w-7 h-7 flex justify-center items-center border border-1 border-[#EEEEEE]  rounded-l-[5px] "  >
-                                            <div style={{ backgroundColor: `${item.color}` }} className="w-3 h-3  border-[#FFFFFF] border-[1px] border-dashed rounded-full drop-shadow-lg"></div>
-                                        </div>
-                                        <span className="text-[#121212] text-[12px] p-1 border border-[#EEEEEE]  w-full">
-                                            {item.text}
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -156,3 +168,4 @@ const Circle: React.FC<circle> = ({ width, data }) => {
 };
 
 export default Circle;
+
