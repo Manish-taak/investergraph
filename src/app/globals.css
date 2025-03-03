@@ -19,3 +19,18 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+
+@keyframes barGrow {
+  0% {
+    height: 0%;
+  }
+  100% {
+    height: var(--target-height);
+  }
+}
+
+.animate-bar-grow {
+  animation: barGrow 0.6s ease-out forwards;
+  height: var(--target-height); /* Fallback for older browsers */
+}

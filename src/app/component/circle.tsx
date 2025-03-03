@@ -23,27 +23,37 @@ export interface GraphData {
     properties: PropertyData[];
 }
 
-const leftLabels = [
-    { color: "#00E5AD", text: "Projected Value" },
-    { color: "#F45050", text: "Outstanding Loan" },
-    { color: "#598CFF", text: "Equity" },
-];
-
-const rightLabels = [
-    { color: "#9747FF", text: "Loan Complete" },
-    { color: "#FF3ADB", text: "Property Sold" },
-    { color: "#25DC00", text: "Property Added" },
-    { color: "#E5D200", text: "Investment Opportunity" },
-];
-
-const displayYears = ["2035", "2040", "2045", "2050", "2055", "2060", "2025", "2030"];
-
+export interface colorcode {
+    lonecomplete: string;
+    propertysold: string;
+    propertyadded: string;
+    investmentopportunity: string;
+    projectedvalue: string;
+    equity: string;
+    outstandingloan: string;
+}
 interface CircleProps {
     width: number;
     data: GraphData[];
+    color: colorcode
 }
 
-const Circle: React.FC<CircleProps> = ({ width, data }) => {
+const Circle: React.FC<CircleProps> = ({ width, data, color }) => {
+
+    const leftLabels = [
+        { color: "#00E5AD", text: "Projected Value" },
+        { color: "#F45050", text: "Outstanding Loan" },
+        { color: "#598CFF", text: "Equity" },
+    ];
+
+    const rightLabels = [
+        { color: color.lonecomplete, text: "Loan Complete" },
+        { color: color.propertysold, text: "Property Sold" },
+        { color: color.propertyadded, text: "Property Added" },
+        { color: color.investmentopportunity, text: "Investment Opportunity" },
+    ];
+
+    const displayYears = ["2035", "2040", "2045", "2050", "2055", "2060", "2025", "2030"];
 
     const totalSpans = data.length;
     const angleStep = 360 / totalSpans;
@@ -101,6 +111,7 @@ const Circle: React.FC<CircleProps> = ({ width, data }) => {
                                         }}
                                     >
                                         <CustomSpan
+                                            color={color}
                                             values={{
                                                 projected: validProperties.reduce(
                                                     (sum, property) => sum + property.amounts.projectedValue, 0

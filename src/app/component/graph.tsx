@@ -2,10 +2,20 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
+import { colorcode } from "./circle";
 
 const CustomSpan = ({
-  values,
+  values, color
 }: {
+  color: {
+    lonecomplete: string;
+    propertysold: string;
+    propertyadded: string;
+    investmentopportunity: string;
+    projectedvalue: string;
+    equity: string;
+    outstandingloan: string;
+  };
   values: {
     projected: number;
     Equity: number;
@@ -26,6 +36,7 @@ const CustomSpan = ({
     loanComplete?: boolean;
     propertySold?: boolean;
     investmentOpportunity?: boolean;
+
   };
 }) => {
 
@@ -93,34 +104,32 @@ const CustomSpan = ({
     "investmentOpportunity",
   ].filter((option) => values[option as keyof typeof values]);
 
-  // Define color mapping for each option
   const optionColors: Record<string, string> = {
-    projectedValue: "bg-[#00E5AD]",
-    loanComplete: "bg-[#9747FF]",
-    outstandingLoan: "bg-[#F45050]",
-    propertySold: "bg-[#FF3ADB]",
-    propertyAdded: "bg-[#25DC00]",
-    equity: "bg-[#598CFF]",
-    investmentOpportunity: "bg-[#E5D200]",
+    projectedValue: color.projectedvalue,
+    loanComplete: color.lonecomplete,
+    outstandingLoan: color.outstandingloan,
+    propertySold: color.propertysold,
+    propertyAdded: color.propertyadded,
+    equity: color.equity,
+    investmentOpportunity: color.investmentopportunity,
   };
 
-  const getMilestoneColor = (milestones: any) => {
+  const getMilestoneColor = (milestones: any, color: colorcode) => {
     const milestoneColors = {
-      propertySold: "#FF3ADB",
-      loanComplete: "#9747FF",
-      propertyAdded: "#25DC00",
-      investmentOpportunity: "#E5D200",
+      propertySold: color.propertysold,
+      loanComplete: color.lonecomplete,
+      propertyAdded: color.propertyadded,
+      investmentOpportunity: color.investmentopportunity,
     };
 
     for (const key in milestoneColors) {
       if (milestones[key as keyof typeof milestoneColors]) return milestoneColors[key as keyof typeof milestoneColors];
     }
-    return "gray"; // Default color
+    return "gray";
   };
 
   return (
     <>
-
       <div className="overflow-visible">
         <div
           ref={spanRef}
@@ -128,32 +137,33 @@ const CustomSpan = ({
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
-
           <div className="w-full bg-[#ECECF0] rounded-xl h-[100px] relative">
             {activeOptions.length > 0 && (
               <div className="absolute left-1/2 -translate-x-1/2 top-[5px] z-20 flex flex-col gap-1">
                 {activeOptions.map((option, index) => (
                   <div
+                    style={{ backgroundColor: optionColors[option] }}
                     key={option}
                     ref={index === 0 ? dotRef : null}
-                    className={`w-3 h-3 ${optionColors[option]} border-[#FFFFFF] border-[1.5px] border-dashed rounded-full drop-shadow-lg`}
+                    className={`w-3 h-3 border-[#FFFFFF] border-[1.5px] border-dashed rounded-full drop-shadow-lg`}
                   ></div>
                 ))}
               </div>
             )}
           </div>
 
-          {sortedColors.map(([color, value]) => (
+          {sortedColors.map(([colors, value]) => (
             <div
-              key={color}
+              key={colors}
               className={`w-full rounded-t-[7px] mb-[-1px] shadow-lg transition-all duration-200 ease-out
-                ${color === "projected"
-                  ? "bg-[#00E5AD]"
-                  : color === "Equity"
-                    ? "bg-[#598CFF]"
-                    : "bg-[#F45050]"
-                }`}
+                `}
               style={{
+                backgroundColor:
+                  colors === "projected"
+                    ? color.projectedvalue
+                    : colors === "Equity"
+                      ? color.equity
+                      : color.outstandingloan,
                 height: isAnimated ? `${value}%` : "0%",
                 WebkitMaskImage: `linear-gradient(to top, rgba(0,0,0,1), rgba(0,0,0,1))`
               }}
@@ -179,8 +189,6 @@ const CustomSpan = ({
               top: tooltipPos.top,
               left: tooltipPos.left,
               transform: "translateX(-50%)",
-              // maxHeight: "275px", 
-              // overflow: "auto",  
             }}
 
             onMouseEnter={() => setHovered(true)}
@@ -201,18 +209,16 @@ const CustomSpan = ({
                   key={index}
                   className={`p-1 ${index !== values.details!.length - 1 ? "border-b border-gray-300 pb-2 mb-2" : ""}`}
                 >
-
                   <div className="flex p-1 items-center gap-2 ">
                     <span
                       className="w-3 h-3 border-[#FFFFFF] border-[1px] box-shadow: -20px 1px 100px 50px rgba(0, 0, 0, 0.1) border-dashed rounded-full "
-                      style={{ backgroundColor: getMilestoneColor(detail.milestones) }}
+                      style={{ backgroundColor: getMilestoneColor(detail.milestones, color) }}
                     ></span>
                     <h2 className="text-[12px] font-medium">
                       {detail.title}
                     </h2>
                   </div>
-
-                  <div className="flex flex-wrap" >
+                  <div className="flex flex-wrap">
                     {/* Value */}
                     <div className="flex p-1 items-center gap-2 w-fit">
                       <span className="min-w-[12px] h-3 bg-green-500 rounded-full"></span>
@@ -225,7 +231,7 @@ const CustomSpan = ({
                     </div>
                     {/* Loan */}
                     <div className="flex p-1 items-center gap-2 w-fit">
-                      <div className="min-w-[12px] bg-[#9747FF] h-3 border-[#FFFFFF] border-[1px] border-dashed rounded-full shadow-lg drop-shadow-lg"></div>
+                      <div style={{ backgroundColor: color.lonecomplete }} className="min-w-[12px]  h-3 border-[#FFFFFF] border-[1px] border-dashed rounded-full shadow-lg drop-shadow-lg"></div>
                       <p className="text-[#6D6D6D] flex items-center justify-between w-full">
                         Loan:{" "}
                         <span className="font-medium text-[12px] text-[#121212]">
@@ -235,7 +241,7 @@ const CustomSpan = ({
                     </div>
                     {/* Equity */}
                     <div className="flex p-1 items-center gap-2 w-fit">
-                      <div className="min-w-[12px] h-3 bg-blue-500 rounded-full"></div>
+                      <div style={{ backgroundColor: color.equity }} className="min-w-[12px] h-3  rounded-full"></div>
                       <p className="text-[#6D6D6D] flex items-center justify-between w-full">
                         Equity:{" "}
                         <span className="font-medium text-[12px] text-[#121212]">
@@ -244,7 +250,6 @@ const CustomSpan = ({
                       </p>
                     </div>
                   </div>
-
                 </div>
               );
             })}

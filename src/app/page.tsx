@@ -550,10 +550,19 @@ const page = () => {
     },
   ];
 
-  return (
-    <Circle data={data} width={517} />
-  )
+  const color = {
+    lonecomplete: "#9747FF",
+    propertysold: "#FF3ADB",
+    propertyadded: "#25DC00",
+    investmentopportunity: "#E5D200",
+    projectedvalue: "#00E5AD",
+    outstandingloan: "#F45050",
+    equity: "#598CFF",
+  }
 
+  return (
+    <Circle data={data} width={517} color={color} />
+  )
 }
 
 export default page
