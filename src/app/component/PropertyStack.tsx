@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import { colorcode } from "./circle";
+import { colorcode } from "./Portfoliograph";
 
-const CustomSpan = ({
+const PropertyStack = ({
   values, color
 }: {
   color: {
@@ -261,4 +261,4 @@ const CustomSpan = ({
   );
 };
 
-export default CustomSpan;
+export default PropertyStack;

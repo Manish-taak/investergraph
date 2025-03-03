@@ -1,5 +1,5 @@
 import React from 'react'
-import Circle, { GraphData } from './component/circle'
+import Portfoliograph, { GraphData } from './component/Portfoliograph'
 
 const page = () => {
 
@@ -561,7 +561,7 @@ const page = () => {
   }
 
   return (
-    <Circle data={data} width={517} color={color} />
+    <Portfoliograph data={data} width={517} color={color} />
   )
 }
 

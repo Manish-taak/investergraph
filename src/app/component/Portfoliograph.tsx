@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import CustomSpan from "./graph";
+import PropertyStack from "./PropertyStack";
 
 export interface PropertyData {
     propertyName: string;
@@ -38,12 +38,12 @@ interface CircleProps {
     color: colorcode
 }
 
-const Circle: React.FC<CircleProps> = ({ width, data, color }) => {
+const Portfoliograph: React.FC<CircleProps> = ({ width, data, color }) => {
 
     const leftLabels = [
-        { color: "#00E5AD", text: "Projected Value" },
-        { color: "#F45050", text: "Outstanding Loan" },
-        { color: "#598CFF", text: "Equity" },
+        { color: color.projectedvalue, text: "Projected Value" },
+        { color: color.outstandingloan, text: "Outstanding Loan" },
+        { color: color.equity, text: "Equity" },
     ];
 
     const rightLabels = [
@@ -110,7 +110,7 @@ const Circle: React.FC<CircleProps> = ({ width, data, color }) => {
                                             WebkitMaskImage: `linear-gradient(to top, rgba(0,0,0,1), rgba(0,0,0,1))`
                                         }}
                                     >
-                                        <CustomSpan
+                                        <PropertyStack
                                             color={color}
                                             values={{
                                                 projected: validProperties.reduce(
@@ -178,5 +178,5 @@ const Circle: React.FC<CircleProps> = ({ width, data, color }) => {
     );
 };
 
-export default Circle;
+export default Portfoliograph;
 
